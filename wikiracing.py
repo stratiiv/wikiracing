@@ -2,10 +2,9 @@ from typing import List
 import wikipedia as wk
 from collections import deque
 import networkx as nx
-from ratelimit import limits,sleep_and_retry
 import psycopg2
 from dbcfg.config import config
-import time
+
 
 requests_per_minute = 100
 links_per_page = 200
@@ -14,7 +13,6 @@ wk.set_lang('uk')
 class WikiRacer:
     @staticmethod
     def get_link_titles(title: str) -> List[str]:
-
         try:
             page = wk.page(title)
             return page.links[:links_per_page]
@@ -22,7 +20,7 @@ class WikiRacer:
             return []    
     
     @staticmethod
-    def add_relations_to_db(from_page,links):
+    def add_relations_to_db(from_page:str,links:list):
         conn = None
         try:
             params = config()
@@ -91,8 +89,8 @@ class WikiRacer:
                 queue.popleft() 
         
     
-    
-    def from_db(from_page,to_page):
+    @staticmethod
+    def from_db(from_page:str,to_page:str):
         conn = None
         try:
             params = config()
@@ -106,13 +104,9 @@ class WikiRacer:
             cur.execute(select_query,(from_page,to_page))
             select_result = cur.fetchone()
             if select_result is not None:
-                print('Found existing path in DB!')
-                try:
-                    path = select_result[0].split(' -> ')
-                except AttributeError:
-                    path = select_result[0]
-                finally:
-                    output = [from_page,*path,to_page]
+                print('Found existing path in DB')
+                path = select_result[0].split(' -> ')
+                output = [from_page,*path,to_page]
             else:
                 print("No already existing path found, finding one soon!")
                 output = []
@@ -124,7 +118,8 @@ class WikiRacer:
                 conn.close()
                 print('Database connection closed.')
                 return output
-
+    
+    @staticmethod
     def add_shortest_to_db(path: List):
         from_page = path[0]
         to_page = path[-1]
@@ -166,8 +161,9 @@ class WikiRacer:
 
 
 wr=WikiRacer()
-min_path = wr.find_path('Фестиваль', 'Пілястра')
-# min_path = wr.find_path('Дружба', 'Рим')
+# min_path = wr.find_path('Порошенко Петро Олексійович','Війна')
+# min_path = wr.find_path('Фестиваль', 'Пілястра')
+min_path = wr.find_path('Дружба', 'Рим')
 # min_path = wr.find_path('Мітохондріальна ДНК', 'Вітамін K')
 # min_path = wr.find_path('Марка (грошова одиниця)', 'Китайський календар')
 # min_path = wr.find_path('Дружина (військо)', '6 жовтня')
