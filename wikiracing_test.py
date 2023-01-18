@@ -21,8 +21,7 @@ class WikiRacerTest(unittest.TestCase):
 
     def test_4(self):
         path = self.racer.find_path('Фестиваль', 'Пілястра')
-        self.fail("implement me")
-
+        self.assertEqual(path,['Фестиваль', 'Бароко', 'Архітектурний ордер','Пілястра'])
     def test_5(self):
         path = self.racer.find_path('Дружина (військо)', '6 жовтня')
         self.assertEqual(path,['Дружина (військо)', 'Друга світова війна', '6 жовтня'])
