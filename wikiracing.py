@@ -5,15 +5,14 @@ import networkx as nx
 import psycopg2
 from dbcfg.config import config
 
-
 requests_per_minute = 100
 links_per_page = 200
-wk.set_lang('uk')
 
 class WikiRacer:
     @staticmethod
     def get_link_titles(title: str) -> List[str]:
         try:
+            wk.set_lang('uk')
             page = wk.page(title)
             return page.links[:links_per_page]
         except:
@@ -32,9 +31,9 @@ class WikiRacer:
             print(db_version)
             print("Connected to add some relations =)")
             cur.execute('''CREATE TABLE IF NOT EXISTS page_relations (
-                id BIGSERIAL PRIMARY KEY,
-                from_page VARCHAR(255),
-                to_page VARCHAR(255)
+                id SMALLSERIAL PRIMARY KEY,
+                from_page VARCHAR(100),
+                to_page VARCHAR(100)
                 );
                 ''')
             
@@ -135,9 +134,9 @@ class WikiRacer:
             db_version = cur.fetchone()
             print(db_version)
             cur.execute('''CREATE TABLE IF NOT EXISTS shortest_path (
-                id BIGSERIAL PRIMARY KEY,
-                from_page VARCHAR(255),
-                to_page VARCHAR(255),
+                id SMALLSERIAL PRIMARY KEY,
+                from_page VARCHAR(100),
+                to_page VARCHAR(100),
                 path text
                 );
                 ''')
@@ -161,10 +160,9 @@ class WikiRacer:
 
 
 wr=WikiRacer()
-# min_path = wr.find_path('Порошенко Петро Олексійович','Війна')
 # min_path = wr.find_path('Фестиваль', 'Пілястра')
-min_path = wr.find_path('Дружба', 'Рим')
-# min_path = wr.find_path('Мітохондріальна ДНК', 'Вітамін K')
+# min_path = wr.find_path('Дружба', 'Рим')
+min_path = wr.find_path('Мітохондріальна ДНК', 'Вітамін K')
 # min_path = wr.find_path('Марка (грошова одиниця)', 'Китайський календар')
 # min_path = wr.find_path('Дружина (військо)', '6 жовтня')
 print(min_path)
